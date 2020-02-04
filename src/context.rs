@@ -508,7 +508,7 @@ impl Context {
                     .expect("difficulty-probability must be passed a number");
 
                 let prob_float = ((n as f32 / n_difficulty as f32) * 0.6).max(0.01).min(1.0);
-                let prob = (prob_float * 100.0).round() as i32;
+                let prob = 100 - (prob_float * 100.0).round() as i32;
 
                 let mut p = p.to_vec();
                 p[3] = throne::Token::new_number(prob, 0, 0);
@@ -2167,8 +2167,8 @@ mod tests {
         assert_eq!(
             branch.result_weights,
             vec![ResultWeight {
-                result: "pass".to_string(),
-                probability: 1, // 1% is minimum,
+                result: "fail".to_string(),
+                probability: 99, // 1% is minimum,
                 difficulty_quality: Some("strength".to_string()),
             }]
         );
@@ -2184,8 +2184,8 @@ mod tests {
         assert_eq!(
             branch.result_weights,
             vec![ResultWeight {
-                result: "pass".to_string(),
-                probability: 24,
+                result: "fail".to_string(),
+                probability: 76,
                 difficulty_quality: Some("strength".to_string())
             }]
         );

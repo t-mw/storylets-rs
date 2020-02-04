@@ -1,3 +1,4 @@
 *** TODO Remove required-quality-hide-on-fail - instead only show branches with failed requirements for qualities that have titles
-*** TODO Place result-difficulty on failure branches, not success, since they will usually want to fall back to the same success
 *** TODO Support required quality on results when using multiple results
+*** DONE Place result-difficulty on failure branches, not success, since they will usually want to fall back to the same success
+    CLOSED: [2020-02-04 Tue 19:03]
