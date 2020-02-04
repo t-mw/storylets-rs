@@ -481,8 +481,9 @@ impl Context {
                 queue_set_quality(&mut self.throne_context, &quality.id, 0);
             }
         }
-
         self.throne_context.update(|_: &throne::Phrase| None);
+
+        self.reset_state();
 
         let mut new_context = script.throne_context.clone();
         new_context.extend_state_from_context(&self.throne_context);
