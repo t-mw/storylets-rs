@@ -428,6 +428,13 @@ pub struct Quality {
 }
 
 impl Context {
+    pub fn new() -> Self {
+        Context {
+            throne_context: throne::Context::from_text(""),
+            quality_properties: HashMap::new(),
+        }
+    }
+
     pub fn from_text(text: &str) -> Self {
         let script = Script::from_text(text);
         Self::from_script(script)
