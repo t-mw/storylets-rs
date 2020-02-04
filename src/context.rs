@@ -294,25 +294,28 @@ impl Branch {
             .collect()
     }
 
-    pub fn get_difficulty_description(&self, context: &Context) -> Option<String> {
-        // assume only one difficulty among results
-        for w in &self.result_weights {
-            if let Some(quality_id) = &w.difficulty_quality {
-                let description = context
-                    .quality_properties
-                    .get(quality_id)
-                    .and_then(|properties| properties.title.as_ref().map(|s| s.to_string()));
+    pub fn get_difficulty_descriptions(&self, context: &Context) -> Vec<String> {
+        self.result_weights
+            .iter()
+            .filter_map(|w| {
+                if let Some(quality_id) = &w.difficulty_quality {
+                    let description = context
+                        .quality_properties
+                        .get(quality_id)
+                        .and_then(|properties| properties.title.as_ref().map(|s| s.to_string()));
 
-                if let Some(description) = description {
-                    return Some(format!(
-                        "Your '{}' quality gives you a {}% chance of success",
-                        description, w.probability
-                    ));
+                    if let Some(description) = description {
+                        return Some(format!(
+                            "Your '{}' quality gives you a {}% chance of success",
+                            description,
+                            100 - w.probability
+                        ));
+                    }
                 }
-            }
-        }
 
-        None
+                None
+            })
+            .collect()
     }
 }
 
@@ -2208,6 +2211,12 @@ mod tests {
                 probability: 76,
                 difficulty_quality: Some("strength".to_string())
             }]
+        );
+
+        let descriptions = branch.get_difficulty_descriptions(&context);
+        assert_eq!(
+            descriptions,
+            vec!["Your 'Strength' quality gives you a 24% chance of success".to_string()],
         );
     }
 

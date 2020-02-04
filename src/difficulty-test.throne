@@ -1,3 +1,5 @@
+<<quality-title strength Strength
+
 <<card-title treasure `Treasure for all`
 <<card-description treasure `You see a gleaming metal chest`
   <<card-branch treasure open-chest
