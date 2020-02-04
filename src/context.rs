@@ -4,7 +4,6 @@ use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
 use std::str::FromStr;
 
-use derivative::*;
 use rand::Rng;
 use regex::{Regex, RegexBuilder};
 use throne::{PhraseGroup, PhraseString};
@@ -327,12 +326,7 @@ pub struct BranchResult {
     pub effects: Vec<BranchResultEffect>,
 }
 
-#[derive(Clone, Derivative, Debug, Eq)]
-#[derivative(
-    Ord = "feature_allow_slow_enum",
-    PartialEq = "feature_allow_slow_enum",
-    PartialOrd = "feature_allow_slow_enum"
-)]
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum BranchResultEffect {
     QualityChanged {
         quality: String,
@@ -341,7 +335,6 @@ pub enum BranchResultEffect {
         description: Option<String>,
     },
     AddPhrase {
-        #[derivative(Ord = "ignore", PartialEq = "ignore", PartialOrd = "ignore")]
         phrase: throne::VecPhrase,
         phrase_string: String,
     },
@@ -1717,7 +1710,10 @@ mod tests {
         assert_eq!(
             branch_result.effects,
             vec![BranchResultEffect::AddPhrase {
-                phrase: vec![], // not checked by eq
+                phrase: throne::tokenize(
+                    "open-treasure (1 2 3)",
+                    &mut context.throne_context.string_cache
+                ),
                 phrase_string: "(open-treasure (1 2 3))".to_string()
             }]
         );
