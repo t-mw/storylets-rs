@@ -470,15 +470,18 @@ impl Context {
             return;
         }
 
-        let throne_context = &mut self.throne_context;
-        self.quality_properties.retain(|id, props| {
-            if props.is_global {
-                true
-            } else {
-                queue_set_quality(throne_context, id, 0);
-                false
+        self.quality_properties.retain(|_, props| props.is_global);
+        for quality in self.get_qualities() {
+            if self
+                .quality_properties
+                .get(&quality.id)
+                .filter(|props| props.is_global)
+                .is_none()
+            {
+                queue_set_quality(&mut self.throne_context, &quality.id, 0);
             }
-        });
+        }
+
         self.throne_context.update(|_: &throne::Phrase| None);
 
         let mut new_context = script.throne_context.clone();
@@ -2295,9 +2298,6 @@ mod tests {
 quality local 1
 quality global 1
 
-<<quality-title local `Local`
-
-<<quality-title global `Global`
 <<quality-is-global global
 ",
         );
@@ -2318,14 +2318,14 @@ quality other 1
                 Quality {
                     id: "global".to_string(),
                     value: 1,
-                    title: Some("Global".to_string()),
-                    description: Some("Global: 1".to_string())
+                    title: None,
+                    description: None
                 },
                 Quality {
                     id: "local".to_string(),
                     value: 1,
-                    title: Some("Local".to_string()),
-                    description: Some("Local: 1".to_string())
+                    title: None,
+                    description: None
                 }
             ]
         );
@@ -2338,8 +2338,8 @@ quality other 1
                 Quality {
                     id: "global".to_string(),
                     value: 1,
-                    title: Some("Global".to_string()),
-                    description: Some("Global: 1".to_string())
+                    title: None,
+                    description: None,
                 },
                 Quality {
                     id: "other".to_string(),
