@@ -433,6 +433,7 @@ impl Context {
         Self::from_script(script)
     }
 
+    #[cfg(test)]
     fn from_throne_text(text: &str) -> Self {
         let script = Script::from_throne_text(text);
         Self::from_script(script)
