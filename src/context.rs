@@ -1,7 +1,9 @@
 use crate::grammar;
 
+use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
+use std::hash::{Hash, Hasher};
 use std::str::FromStr;
 
 use rand::Rng;
@@ -10,11 +12,13 @@ use throne::{PhraseGroup, PhraseString};
 use unidecode::unidecode;
 
 pub struct Context {
+    active_script_id: Option<u64>,
     throne_context: throne::Context,
     quality_properties: HashMap<String, QualityProperty>,
 }
 
 pub struct Script {
+    id: u64,
     throne_context: throne::Context,
     quality_properties: HashMap<String, QualityProperty>,
 }
@@ -431,6 +435,7 @@ pub struct Quality {
 impl Context {
     pub fn new() -> Self {
         Context {
+            active_script_id: None,
             throne_context: throne::Context::from_text(""),
             quality_properties: HashMap::new(),
         }
@@ -449,6 +454,7 @@ impl Context {
 
     fn from_script(script: Script) -> Self {
         let mut context = Self {
+            active_script_id: None,
             throne_context: throne::ContextBuilder::new().build(),
             quality_properties: HashMap::new(),
         };
@@ -457,6 +463,10 @@ impl Context {
     }
 
     pub fn set_active_script(&mut self, script: &Script) {
+        if self.active_script_id == Some(script.id) {
+            return;
+        }
+
         let throne_context = &mut self.throne_context;
         self.quality_properties.retain(|id, props| {
             if props.is_global {
@@ -471,6 +481,7 @@ impl Context {
         let mut new_context = script.throne_context.clone();
         new_context.extend_state_from_context(&self.throne_context);
 
+        self.active_script_id = Some(script.id);
         self.throne_context = new_context;
         self.quality_properties
             .extend(script.quality_properties.clone());
@@ -1058,7 +1069,12 @@ impl Script {
             .text(&(text.to_string() + "\n" + base_txt))
             .build();
 
+        let mut s = DefaultHasher::new();
+        text.hash(&mut s);
+        let id = s.finish();
+
         Self {
+            id,
             throne_context,
             quality_properties,
         }
