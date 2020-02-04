@@ -1,10 +1,14 @@
 [package]
 name = "storylets"
 version = "0.1.0"
+description = "Embeddable storylet-based narrative engine for games"
 authors = ["Tobias Mansfield-Williams <contact@tmwhere.com>"]
+repository = "https://github.com/t-mw/storylets-rs"
+keywords = ["scripting", "game", "language", "storylets"]
+categories = ["game-development"]
+license = "MIT"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+exclude = ["todo.org"]
 
 [dependencies]
 throne = "0.1.0"
