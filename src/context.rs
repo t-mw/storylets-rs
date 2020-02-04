@@ -27,6 +27,7 @@ pub struct QualityProperty {
     hide_level: bool,
     hide_level_change: bool,
     is_thing: bool,
+    is_global: bool,
 }
 
 impl QualityProperty {
@@ -456,6 +457,17 @@ impl Context {
     }
 
     pub fn set_active_script(&mut self, script: &Script) {
+        let throne_context = &mut self.throne_context;
+        self.quality_properties.retain(|id, props| {
+            if props.is_global {
+                true
+            } else {
+                queue_set_quality(throne_context, id, 0);
+                false
+            }
+        });
+        self.throne_context.update(|_: &throne::Phrase| None);
+
         let mut new_context = script.throne_context.clone();
         new_context.extend_state_from_context(&self.throne_context);
 
@@ -700,8 +712,7 @@ impl Context {
     }
 
     pub fn set_quality(&mut self, id: &str, value: i32) {
-        self.throne_context
-            .append_state(&format!("#set-quality {} {}", id, value));
+        queue_set_quality(&mut self.throne_context, id, value);
         self.throne_context.update(|_: &throne::Phrase| None);
 
         self.reset_state();
@@ -1033,6 +1044,10 @@ impl Context {
     }
 }
 
+fn queue_set_quality(throne_context: &mut throne::Context, id: &str, value: i32) {
+    throne_context.append_state(&format!("#set-quality {} {}", id, value));
+}
+
 impl Script {
     pub fn from_text(text: &str) -> Self {
         let text = expand_concise_syntax(text);
@@ -1125,6 +1140,7 @@ fn read_quality_properties(txt: &str) -> HashMap<String, QualityProperty> {
             "quality-hide-level" => quality_properties.hide_level = true,
             "quality-hide-level-change" => quality_properties.hide_level_change = true,
             "quality-is-thing" => quality_properties.is_thing = true,
+            "quality-is-global" => quality_properties.is_global = true,
             _ => unreachable!("Unhandled quality property type: {}", property_type),
         }
     }
@@ -2229,5 +2245,68 @@ mod tests {
                 format!("{} should be <= {}", fail_count, count * (100 - 21) / 100)
             );
         }
+    }
+
+    #[test]
+    fn test_set_active_script() {
+        let script1 = Script::from_throne_text(
+            "
+quality local 1
+quality global 1
+
+<<quality-title local `Local`
+
+<<quality-title global `Global`
+<<quality-is-global global
+",
+        );
+
+        let script2 = Script::from_throne_text(
+            "
+quality other 1
+",
+        );
+
+        let mut context = Context::new();
+
+        context.set_active_script(&script1);
+
+        assert_eq!(
+            context.get_qualities(),
+            vec![
+                Quality {
+                    id: "global".to_string(),
+                    value: 1,
+                    title: Some("Global".to_string()),
+                    description: Some("Global: 1".to_string())
+                },
+                Quality {
+                    id: "local".to_string(),
+                    value: 1,
+                    title: Some("Local".to_string()),
+                    description: Some("Local: 1".to_string())
+                }
+            ]
+        );
+
+        context.set_active_script(&script2);
+
+        assert_eq!(
+            context.get_qualities(),
+            vec![
+                Quality {
+                    id: "global".to_string(),
+                    value: 1,
+                    title: Some("Global".to_string()),
+                    description: Some("Global: 1".to_string())
+                },
+                Quality {
+                    id: "other".to_string(),
+                    value: 1,
+                    title: None,
+                    description: None
+                }
+            ]
+        );
     }
 }
