@@ -1,0 +1,13 @@
+<<card-title treasure `Treasure for all`
+<<card-description treasure `You see a gleaming metal chest`
+  <<card-branch treasure open-chest
+  <<branch-title open-chest `Open the chest`
+  <<branch-description open-chest `The obvious choice - you'd be a fool not to take the opportunity.`
+  <<branch-result open-chest pass
+    <<result-title pass `You're rich!`
+    <<result-description pass `The chest is filled with gold and precious jewels.`
+    <<result-required-quality-missing pass force-fail
+  <<branch-result open-chest fail
+    <<result-title fail `You're not rich!`
+    <<result-description fail `The chest resists your best efforts.`
+    <<result-required-quality fail force-fail

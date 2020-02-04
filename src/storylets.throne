@@ -106,14 +106,27 @@
 <<calc-quality-after-change N CHANGE 0 . < CHANGE 0 . + CHANGE CHANGEPOSITIVE 0 . > CHANGEPOSITIVE N
 
 #apply-branch BRANCH: {
-  $branch BRANCH result-probability RESULT PROB _ . ^test-probability RESULT PROB . !branch BRANCH result _ = branch BRANCH result RESULT
+  // just check for first failure, since failed results are never shown
+  <<result-required-quality RESULT QUALITY . !quality QUALITY _ . !result RESULT failed = result RESULT failed
+  <<result-required-quality-missing RESULT QUALITY . $quality QUALITY _ . !result RESULT failed = result RESULT failed
+  <<result-required-quality-eq RESULT QUALITY N . <<quality-fails-eq QUALITY N . !result RESULT failed = result RESULT failed
+  <<result-required-quality-neq RESULT QUALITY N . <<quality-fails-neq QUALITY N . !result RESULT failed = result RESULT failed
+  <<result-required-quality-lt RESULT QUALITY N . <<quality-fails-lt QUALITY N . !result RESULT failed = result RESULT failed
+  <<result-required-quality-lt-eq RESULT QUALITY N . <<quality-fails-lt-eq QUALITY N . !result RESULT failed = result RESULT failed QUALITY
+  <<result-required-quality-gt RESULT QUALITY N . <<quality-fails-gt QUALITY N . !result RESULT failed = result RESULT failed
+  <<result-required-quality-gt-eq RESULT QUALITY N . <<quality-fails-gt-eq QUALITY N . !result RESULT failed = result RESULT failed QUALITY
 
   () = #apply-branch2 BRANCH
 }
 
 #apply-branch2 BRANCH: {
-  $card _ branch BRANCH . <<branch-result BRANCH RESULT . !branch BRANCH result-probability RESULT _ _ . !branch BRANCH result _ = branch BRANCH result RESULT
+  $branch BRANCH result-probability RESULT PROB _ . ^test-probability RESULT PROB . !result RESULT failed . !branch BRANCH result _ = branch BRANCH result RESULT
 
+  () = #apply-branch3 BRANCH
+}
+
+#apply-branch3 BRANCH: {
+  $card _ branch BRANCH . <<branch-result BRANCH RESULT . !branch BRANCH result-probability RESULT _ _ . !result RESULT failed . !branch BRANCH result _ = branch BRANCH result RESULT
 
   $branch _ result RESULT . <<result-set-quality RESULT QUALITY N . <<quality QUALITY NBEFORE . !result RESULT effect quality-changed QUALITY _ _ = quality QUALITY N . result RESULT effect quality-changed QUALITY NBEFORE N
   $branch _ result RESULT . <<result-change-quality RESULT QUALITY CHANGE . <<quality QUALITY NBEFORE . <<calc-quality-after-change NBEFORE CHANGE N' . !result RESULT effect quality-changed QUALITY _ _ = quality QUALITY N' . result RESULT effect quality-changed QUALITY NBEFORE N'

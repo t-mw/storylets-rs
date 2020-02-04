@@ -2124,6 +2124,26 @@ mod tests {
     }
 
     #[test]
+    fn test_result_requirements() {
+        let mut context = Context::from_throne_text(include_str!("result-requirement-test.throne"));
+
+        context.draw_cards();
+        let result = context.select_branch("open-chest");
+
+        context.throne_context.print();
+
+        assert_eq!(result.id, "pass");
+
+        context.set_quality("force-fail", 1);
+        context.draw_cards();
+        let result = context.select_branch("open-chest");
+
+        context.throne_context.print();
+
+        assert_eq!(result.id, "fail");
+    }
+
+    #[test]
     fn test_concise_syntax() {
         let actual = expand_concise_syntax(include_str!("concise-test.throne"));
 
