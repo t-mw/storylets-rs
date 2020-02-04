@@ -608,7 +608,7 @@ impl Context {
     fn get_branch_result_effects(&self, result_id: &str) -> Vec<BranchResultEffect> {
         let throne_context = &self.throne_context;
 
-        if let (Some(result_atom), Some(effect_atom), Some(result_id_atom)) = (
+        let mut effects = if let (Some(result_atom), Some(effect_atom), Some(result_id_atom)) = (
             throne_context.str_to_existing_atom("result"),
             throne_context.str_to_existing_atom("effect"),
             throne_context.str_to_existing_atom(result_id),
@@ -691,7 +691,11 @@ impl Context {
                 .collect()
         } else {
             vec![]
-        }
+        };
+
+        effects.sort();
+
+        effects
     }
 
     pub fn set_quality(&mut self, id: &str, value: i32) {
