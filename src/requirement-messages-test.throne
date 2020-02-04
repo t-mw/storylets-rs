@@ -1,0 +1,22 @@
+<<quality-title strength Strength
+
+<<card-title treasure `Treasure for all`
+<<card-description treasure `You see a gleaming metal chest`
+<<card-required-quality-missing treasure treasure-open
+  <<card-branch treasure open-chest
+  <<branch-title open-chest `Open the chest`
+  <<branch-description open-chest `The obvious choice - you'd be a fool not to take the opportunity.`
+  <<branch-result open-chest success
+    <<result-title success `You're rich!`
+    <<result-description success `The chest is filled with gold and precious jewels.`
+    <<result-set-quality success treasure-open 1
+  <<card-branch treasure kick-chest
+  <<branch-title kick-chest `Kick the chest`
+  <<branch-description kick-chest `It looks very sturdy, but then again you're very strong.`
+  <<branch-required-quality-gt kick-chest strength 2
+
+<<card-title waterfall `Angel Falls`
+<<card-description waterfall `The waterfall is crashing down and your throat is parched.`
+  <<card-branch waterfall drink
+  <<branch-title drink `Satisfy your thirst`
+  <<branch-description drink `The water looks crystal clear, but is it really safe to drink.`

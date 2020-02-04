@@ -1,0 +1,9 @@
+<<card-title treasure `Treasure for all`
+<<card-description treasure `You see a gleaming metal chest`
+  <<card-branch treasure open-chest
+  <<branch-title open-chest `Open the chest`
+  <<branch-description open-chest `The obvious choice - you'd be a fool not to take the opportunity.`
+  <<branch-result open-chest success
+    <<result-title success `You're rich!`
+    <<result-description success `The chest is filled with gold and precious jewels.`
+    <<result-add-phrase success (open-treasure (1 2 3))

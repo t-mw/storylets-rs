@@ -1,0 +1,19 @@
+quality jewel-bags 1
+
+<<card-title treasure `Treasure for all`
+<<card-description treasure `Gleaming metal chests stretch as far as the eye can see`
+  <<card-branch treasure open-chest
+  <<branch-title open-chest `Open a chest`
+  <<branch-description open-chest `The obvious choice - you'd be a fool not to take the opportunity.`
+  <<branch-result open-chest open-success
+    <<result-title open-success `You're rich!`
+    <<result-description open-success `The chest is filled with gold and precious jewels.`
+    <<result-change-quality open-success jewel-bags 1
+  <<card-branch treasure kick-chest
+  <<branch-title kick-chest `Kick a chest`
+  <<branch-description kick-chest `It looks very sturdy, but then again you're very strong.`
+  <<branch-required-quality-gt kick-chest strength 2
+  <<branch-result kick-chest kick-fail
+    <<result-title kick-fail `Disaster!`
+    <<result-description kick-fail `You slip and fall, sending jewels scattering everywhere.`
+    <<result-change-quality kick-fail jewel-bags -3

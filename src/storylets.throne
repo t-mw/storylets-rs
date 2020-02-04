@@ -1,0 +1,130 @@
+[disable-unused-warnings]
+
+<<quality-fails-eq QUALITY N1 . ?quality QUALITY N2 . !== N1 N2
+<<quality-fails-eq QUALITY _ . !quality QUALITY _
+<<quality-fails-neq QUALITY N . ?quality QUALITY N
+<<quality-fails-neq QUALITY _ . !quality QUALITY _
+<<quality-fails-lt QUALITY N1 . ?quality QUALITY N2 . <= N1 N2
+<<quality-fails-lt QUALITY _ . !quality QUALITY _
+<<quality-fails-lt-eq QUALITY N1 . ?quality QUALITY N2 . < N1 N2
+<<quality-fails-lt-eq QUALITY _ . !quality QUALITY _
+<<quality-fails-gt QUALITY N1 . ?quality QUALITY N2 . >= N1 N2
+<<quality-fails-gt QUALITY _ . !quality QUALITY _
+<<quality-fails-gt-eq QUALITY N1 . ?quality QUALITY N2 . > N1 N2
+<<quality-fails-gt-eq QUALITY _ . !quality QUALITY _
+
+<<quality-passes-eq QUALITY N . ?quality QUALITY N
+<<quality-passes-neq QUALITY N1 . ?quality QUALITY N2 . !== N1 N2
+<<quality-passes-lt QUALITY N1 . ?quality QUALITY N2 . > N1 N2
+<<quality-passes-lt-eq QUALITY N1 . ?quality QUALITY N2 . >= N1 N2
+<<quality-passes-gt QUALITY N1 . ?quality QUALITY N2 . < N1 N2
+<<quality-passes-gt-eq QUALITY N1 . ?quality QUALITY N2 . <= N1 N2
+
+<<quality QUALITY N . quality QUALITY N
+<<quality QUALITY 0 . !quality QUALITY _
+
+<<quality-non-consuming QUALITY N . ?quality QUALITY N
+<<quality-non-consuming QUALITY 0 . !quality QUALITY _
+
+#draw-cards: {
+  // just check for first failure, since failed cards are never shown
+  <<card-required-quality CARD QUALITY . !quality QUALITY _ . !card CARD failed-quality _ QUALITY = card CARD failed-quality exists QUALITY
+  <<card-required-quality-missing CARD QUALITY . $quality QUALITY _ . !card CARD failed-quality _ QUALITY = card CARD failed-quality missing QUALITY
+  <<card-required-quality-eq CARD QUALITY N . <<quality-fails-eq QUALITY N . !card CARD failed-quality _ QUALITY = card CARD failed-quality eq QUALITY
+  <<card-required-quality-neq CARD QUALITY N . <<quality-fails-neq QUALITY N . !card CARD failed-quality _ QUALITY = card CARD failed-quality neq QUALITY
+  <<card-required-quality-lt CARD QUALITY N . <<quality-fails-lt QUALITY N . !card CARD failed-quality _ QUALITY = card CARD failed-quality lt QUALITY
+  <<card-required-quality-lt-eq CARD QUALITY N . <<quality-fails-lt-eq QUALITY N . !card CARD failed-quality _ QUALITY = card CARD failed-quality lt-eq QUALITY
+  <<card-required-quality-gt CARD QUALITY N . <<quality-fails-gt QUALITY N . !card CARD failed-quality _ QUALITY = card CARD failed-quality gt QUALITY
+  <<card-required-quality-gt-eq CARD QUALITY N . <<quality-fails-gt-eq QUALITY N . !card CARD failed-quality _ QUALITY = card CARD failed-quality gt-eq QUALITY
+
+  () = #draw-cards2
+}
+
+#draw-cards2: {
+  <<card-required-quality CARD QUALITY . $quality QUALITY _ . !card CARD failed-quality _ QUALITY . !card CARD passed-quality exists QUALITY = card CARD passed-quality exists QUALITY
+  <<card-required-quality-missing CARD QUALITY . !quality QUALITY _ . !card CARD failed-quality _ QUALITY . !card CARD passed-quality missing QUALITY = card CARD passed-quality missing QUALITY
+  <<card-required-quality-eq CARD QUALITY N . <<quality-passes-eq QUALITY N . !card CARD failed-quality _ QUALITY . !card CARD passed-quality eq QUALITY = card CARD passed-quality eq QUALITY
+  <<card-required-quality-neq CARD QUALITY N . <<quality-passes-neq QUALITY N . !card CARD failed-quality _ QUALITY . !card CARD passed-quality neq QUALITY = card CARD passed-quality neq QUALITY
+  <<card-required-quality-lt CARD QUALITY N . <<quality-passes-lt QUALITY N . !card CARD failed-quality _ QUALITY . !card CARD passed-quality lt QUALITY = card CARD passed-quality lt QUALITY
+  <<card-required-quality-lt-eq CARD QUALITY N . <<quality-passes-lt-eq QUALITY N . !card CARD failed-quality _ QUALITY . !card CARD passed-quality lt-eq QUALITY = card CARD passed-quality lt-eq QUALITY
+  <<card-required-quality-gt CARD QUALITY N . <<quality-passes-gt QUALITY N . !card CARD failed-quality _ QUALITY . !card CARD passed-quality gt QUALITY = card CARD passed-quality gt QUALITY
+  <<card-required-quality-gt-eq CARD QUALITY N . <<quality-passes-gt-eq QUALITY N . !card CARD failed-quality _ QUALITY . !card CARD passed-quality gt-eq QUALITY = card CARD passed-quality gt-eq QUALITY
+
+  <<card-is-urgent CARD . !card CARD failed-quality _ _ . !urgent-card CARD = urgent-card CARD
+  () = #draw-cards3
+}
+
+#draw-cards3: {
+  <<card-title CARD _ . !card CARD failed-quality _COND _QUALITY . !urgent-card _ . !card CARD = card CARD
+  <<card-title CARD _ . $urgent-card CARD . !card CARD = card CARD
+
+  $card CARD . <<card-title CARD TITLE . !card CARD title TITLE = card CARD title TITLE
+  $card CARD . <<card-description CARD DESC . !card CARD description DESC = card CARD description DESC
+  () = #draw-branches
+}
+
+<<branch-failed-quality-any BRANCH QUALITY . ?branch BRANCH failed-quality _COND QUALITY
+<<branch-failed-quality-any BRANCH QUALITY . ?branch BRANCH failed-quality _COND QUALITY _N
+
+#draw-branches: {
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality BRANCH QUALITY . !quality QUALITY _ . !branch BRANCH failed-quality exists QUALITY = branch BRANCH failed-quality exists QUALITY
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-missing BRANCH QUALITY . $quality QUALITY _ . !branch BRANCH failed-quality missing QUALITY = branch BRANCH failed-quality missing QUALITY
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-eq BRANCH QUALITY N . <<quality-fails-eq QUALITY N . !branch BRANCH failed-quality eq QUALITY N = branch BRANCH failed-quality eq QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-neq BRANCH QUALITY N . <<quality-fails-neq QUALITY N . !branch BRANCH failed-quality neq QUALITY N = branch BRANCH failed-quality neq QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-lt BRANCH QUALITY N . <<quality-fails-lt QUALITY N . !branch BRANCH failed-quality lt QUALITY N = branch BRANCH failed-quality lt QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-lt-eq BRANCH QUALITY N . <<quality-fails-lt-eq QUALITY N . !branch BRANCH failed-quality lt-eq QUALITY N = branch BRANCH failed-quality lt-eq QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-gt BRANCH QUALITY N . <<quality-fails-gt QUALITY N . !branch BRANCH failed-quality gt QUALITY N = branch BRANCH failed-quality gt QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-gt-eq BRANCH QUALITY N . <<quality-fails-gt-eq QUALITY N . !branch BRANCH failed-quality gt-eq QUALITY N = branch BRANCH failed-quality gt-eq QUALITY N
+
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality BRANCH QUALITY . $quality QUALITY _ . !branch BRANCH passed-quality exists QUALITY = branch BRANCH passed-quality exists QUALITY
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-missing BRANCH QUALITY . !quality QUALITY _ . !branch BRANCH passed-quality missing QUALITY = branch BRANCH passed-quality missing QUALITY
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-eq BRANCH QUALITY N . <<quality-passes-eq QUALITY N . !branch BRANCH passed-quality eq QUALITY N = branch BRANCH passed-quality eq QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-neq BRANCH QUALITY N . <<quality-passes-neq QUALITY N . !branch BRANCH passed-quality neq QUALITY N = branch BRANCH passed-quality neq QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-lt BRANCH QUALITY N . <<quality-passes-lt QUALITY N . !branch BRANCH passed-quality lt QUALITY N = branch BRANCH passed-quality lt QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-lt-eq BRANCH QUALITY N . <<quality-passes-lt-eq QUALITY N . !branch BRANCH passed-quality lt-eq QUALITY N = branch BRANCH passed-quality lt-eq QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-gt BRANCH QUALITY N . <<quality-passes-gt QUALITY N . !branch BRANCH passed-quality gt QUALITY N = branch BRANCH passed-quality gt QUALITY N
+  $card CARD . <<card-branch CARD BRANCH . <<branch-required-quality-gt-eq BRANCH QUALITY N . <<quality-passes-gt-eq QUALITY N . !branch BRANCH passed-quality gt-eq QUALITY N = branch BRANCH passed-quality gt-eq QUALITY N
+
+  <<branch-failed-quality-any BRANCH QUALITY . <<branch-required-quality-hide-on-fail BRANCH QUALITY . !hidden-branch BRANCH = hidden-branch BRANCH
+  () = #draw-branches2
+}
+
+#draw-branches2: {
+  $card CARD . <<card-branch CARD BRANCH . !card CARD branch BRANCH . !hidden-branch BRANCH = card CARD branch BRANCH
+  $card _ branch BRANCH . <<branch-title BRANCH TITLE . !branch BRANCH title TITLE = branch BRANCH title TITLE
+  $card _ branch BRANCH . <<branch-description BRANCH DESC . !branch BRANCH description DESC = branch BRANCH description DESC
+  $card _ branch BRANCH . <<branch-result BRANCH RESULT . <<result-difficulty RESULT QUALITY NDIFFICULTY . <<quality-non-consuming QUALITY N . ^difficulty-probability N NDIFFICULTY PROB . !branch BRANCH result-probability RESULT _ _ = branch BRANCH result-probability RESULT PROB QUALITY
+  () = ()
+}
+
+<<consume-quality-to-set QUALITY N NBEFORE . quality QUALITY NBEFORE . !== N NBEFORE
+<<consume-quality-to-set QUALITY _ 0 . !quality QUALITY _
+
+<<calc-quality-after-change N CHANGE N' . >= CHANGE 0 . + N CHANGE N'
+// stop qualities from being changed to below 0
+<<calc-quality-after-change N CHANGE N' . < CHANGE 0 . + CHANGE CHANGEPOSITIVE 0 . <= CHANGEPOSITIVE N . + N CHANGE N'
+<<calc-quality-after-change N CHANGE 0 . < CHANGE 0 . + CHANGE CHANGEPOSITIVE 0 . > CHANGEPOSITIVE N
+
+#apply-branch BRANCH: {
+  $branch BRANCH result-probability RESULT PROB _ . ^test-probability RESULT PROB . !branch BRANCH result _ = branch BRANCH result RESULT
+
+  () = #apply-branch2 BRANCH
+}
+
+#apply-branch2 BRANCH: {
+  $card _ branch BRANCH . <<branch-result BRANCH RESULT . !branch BRANCH result-probability RESULT _ _ . !branch BRANCH result _ = branch BRANCH result RESULT
+
+
+  $branch _ result RESULT . <<result-set-quality RESULT QUALITY N . <<quality QUALITY NBEFORE . !result RESULT effect quality-changed QUALITY _ _ = quality QUALITY N . result RESULT effect quality-changed QUALITY NBEFORE N
+  $branch _ result RESULT . <<result-change-quality RESULT QUALITY CHANGE . <<quality QUALITY NBEFORE . <<calc-quality-after-change NBEFORE CHANGE N' . !result RESULT effect quality-changed QUALITY _ _ = quality QUALITY N' . result RESULT effect quality-changed QUALITY NBEFORE N'
+  $branch _ result RESULT . <<result-add-phrase RESULT PHRASE . !result RESULT effect add-phrase PHRASE = PHRASE . result RESULT effect add-phrase PHRASE
+  $branch _ result RESULT . <<result-title RESULT TITLE . !result RESULT title TITLE = result RESULT title TITLE
+  $branch _ result RESULT . <<result-description RESULT DESC . !result RESULT description DESC = result RESULT description DESC
+  () = ()
+}
+
+#set-quality QUALITY N . <<consume-quality-to-set QUALITY N _ = quality QUALITY N
+
+quality _ 0 = ()
+
+[enable-unused-warnings]

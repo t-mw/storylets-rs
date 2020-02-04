@@ -1,0 +1,22 @@
+<<card-title treasure `Treasure for all`
+<<card-description treasure `You see a gleaming metal chest`
+  <<card-branch treasure open-chest
+  <<branch-title open-chest `Open the chest`
+  <<branch-description open-chest `The obvious choice - you'd be a fool not to take the opportunity.`
+
+<<card-title treasure2 `Treasure for all`
+<<card-description treasure2 `You see a gleaming metal chest`
+  <<card-branch treasure2 open-chest2
+  <<branch-title open-chest2 `Open the chest`
+  <<branch-description open-chest2 `The obvious choice - you'd be a fool not to take the opportunity.`
+
+<<card-title waterfall `Angel Falls`
+<<card-is-urgent waterfall
+<<card-required-quality-missing waterfall passed-waterfall
+<<card-description waterfall `You pass by the waterfall`
+  <<card-branch waterfall continue
+  <<branch-title continue `Continue on`
+  <<branch-result continue passed
+    <<result-title passed `You continue on`
+    <<result-description passed `The crashing of the water fades into the distance`
+    <<result-set-quality passed passed-waterfall 1

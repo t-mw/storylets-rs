@@ -1,0 +1,79 @@
+<<quality-title season `Current season`
+<<quality-level-description season 4 `Winter`
+<<quality-level-description season 1 `Spring`
+<<quality-level-description season 3 `Autumn`
+<<quality-level-description season 2 `Summer`
+<<quality-level-change-description season 1 `Spring is upon us`
+<<quality-level-change-description season 4 `Winter is upon us`
+<<quality-level-change-description season 2 `Summer is upon us`
+<<quality-level-change-description season 0 `The seasons no longer pass`
+<<quality-level-change-description season 3 `Autumn is upon us`
+<<quality-hide-level season
+<<quality-hide-level-change season
+
+<<quality-title strength `Strength`
+<<quality-level-description strength 7 `Very strong`
+<<quality-level-description strength 3 `Weak`
+<<quality-level-change-description strength 3 `You're slightly stronger`
+
+<<quality-title jewels `Jewel`
+<<quality-is-thing jewels
+
+<<card-title card `Test`
+
+  <<card-branch card increase-season
+  <<branch-title increase-season `Pass the season`
+  <<branch-result increase-season increase-season-result
+    <<result-title increase-season-result `Increased`
+    <<result-description increase-season-result `Increased`
+    <<result-change-quality increase-season-result season 1
+  <<card-branch card increase-season-2
+  <<branch-title increase-season-2 `Pass the season twice`
+  <<branch-result increase-season-2 increase-season-2-result
+    <<result-title increase-season-2-result `Increased`
+    <<result-description increase-season-2-result `Increased`
+    <<result-change-quality increase-season-2-result season 2
+  <<card-branch card decrease-season-2
+  <<branch-title decrease-season-2 `Pass the season twice`
+  <<branch-result decrease-season-2 decrease-season-2-result
+    <<result-title decrease-season-2-result `Increased`
+    <<result-description decrease-season-2-result `Increased`
+    <<result-change-quality decrease-season-2-result season -2
+
+  <<card-branch card increase-strength
+  <<branch-title increase-strength `Increase your strength`
+  <<branch-result increase-strength increase-strength-result
+    <<result-title increase-strength-result `Increased`
+    <<result-description increase-strength-result `Increased`
+    <<result-change-quality increase-strength-result strength 1
+  <<card-branch card increase-strength-2
+  <<branch-title increase-strength-2 `Increase your strength twice`
+  <<branch-result increase-strength-2 increase-strength-2-result
+    <<result-title increase-strength-2-result `Increased`
+    <<result-description increase-strength-2-result `Increased`
+    <<result-change-quality increase-strength-2-result strength 2
+  <<card-branch card decrease-strength-2
+  <<branch-title decrease-strength-2 `Increase your strength twice`
+  <<branch-result decrease-strength-2 decrease-strength-2-result
+    <<result-title decrease-strength-2-result `Increased`
+    <<result-description decrease-strength-2-result `Increased`
+    <<result-change-quality decrease-strength-2-result strength -2
+
+  <<card-branch card increase-jewels
+  <<branch-title increase-jewels `Get more jewels`
+  <<branch-result increase-jewels increase-jewels-result
+    <<result-title increase-jewels-result `Increased`
+    <<result-description increase-jewels-result `Increased`
+    <<result-change-quality increase-jewels-result jewels 1
+  <<card-branch card increase-jewels-2
+  <<branch-title increase-jewels-2 `Get more jewels twice`
+  <<branch-result increase-jewels-2 increase-jewels-2-result
+    <<result-title increase-jewels-2-result `Increased`
+    <<result-description increase-jewels-2-result `Increased`
+    <<result-change-quality increase-jewels-2-result jewels 2
+  <<card-branch card decrease-jewels-2
+  <<branch-title decrease-jewels-2 `Get more jewels twice`
+  <<branch-result decrease-jewels-2 decrease-jewels-2-result
+    <<result-title decrease-jewels-2-result `Increased`
+    <<result-description decrease-jewels-2-result `Increased`
+    <<result-change-quality decrease-jewels-2-result jewels -2

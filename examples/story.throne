@@ -1,0 +1,41 @@
+quality luxury-accomodation
+title The air of an aristocrat
+level-change-description 1 You feel privileged and full of self-confidence, for now.
+hide-level
+hide-level-change
+
+card
+title Find a place to live
+description Winter is fast approaching and you won't last long without a roof over your head.
+required-quality-missing luxury-accomodation
+required-quality-missing modest-accomodation
+required-quality-missing street-accomodation
+  branch
+  title Look for something luxurious
+  description After all this time pinching pennies, you deserve it...
+    result
+    title You got the place!
+    description After much muttering by the tired man showing you around, you have the keys in your hand.
+    set-quality luxury-accomodation 1
+  branch
+  title Settle for a modest neigborhood
+  description You just need the basics and that's it...
+    result modest-accomodation-success
+    title You got the place!
+    description After much muttering by the tired man showing you around, you have the keys in your hand.
+    set-quality modest-accomodation 1
+  branch
+  title Get comfortable under a bridge
+  description find-street-accomodation Experience the icy kiss of the clear night air in the company of local wildlife. That's real living!
+    result
+    title You got the place!
+    description After much muttering by the tired man showing you around, you have the keys in your hand.
+    set-quality street-accomodation 1
+
+card
+title The Fiddler's Pipe
+description This local haunt is renowned for its grotty atmosphere. No doubt you'll make a good impression.
+  branch
+  title An interesting proposition
+  description As you scan across the murky interior, a man catches your eye. Dressed in a quilted fabric lined with a ruffled lace trim, he looks completely out of his element. As his gaze meets yours, his mouth cracks into a smile filled with rotting teeth and he beckons you to come closer.
+  required-quality luxury-accomodation

@@ -1,0 +1,26 @@
+quality
+is-thing
+level-change-description 3 Autumn is upon us
+
+card treasure
+title Treasure for all
+description You see a gleaming metal chest
+required-quality-missing treasure-open
+  branch
+  title Open the chest
+  description The obvious choice - you'd be a fool not to take the opportunity.
+    result
+    title You're rich!
+    description The chest is filled with gold and precious jewels.
+    set-quality treasure-open 1
+  branch
+  title Kick the chest
+  description It looks very sturdy, but then again you're very strong.
+  required-quality-gt strength 2
+
+card
+title Angel Falls
+description The waterfall is crashing down and your throat is parched.
+  branch
+  title Satisfy your thirst
+  description The water looks crystal clear, but is it really safe to drink.
