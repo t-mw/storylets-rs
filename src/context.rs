@@ -1732,7 +1732,7 @@ mod tests {
             vec![BranchResultEffect::AddPhrase {
                 phrase: throne::tokenize(
                     "open-treasure (1 2 3)",
-                    &mut context.throne_context.atom_cache
+                    &mut context.throne_context.string_cache
                 ),
                 phrase_string: "(open-treasure (1 2 3))".to_string()
             }]
