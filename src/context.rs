@@ -489,11 +489,11 @@ impl Context {
         let mut core = &mut throne_context.core;
         let string_cache = &throne_context.string_cache;
 
-        throne::update(&mut core, |p: &throne::Phrase| match p[0].string {
+        throne::update(&mut core, |p: &throne::Phrase| match p[0].atom {
             a if difficulty_probability_atom == Some(a) => {
-                let n = throne::StringCache::atom_to_number(p[1].string)
+                let n = throne::StringCache::atom_to_number(p[1].atom)
                     .expect("difficulty-probability must be passed a number");
-                let n_difficulty = throne::StringCache::atom_to_number(p[2].string)
+                let n_difficulty = throne::StringCache::atom_to_number(p[2].atom)
                     .expect("difficulty-probability must be passed a number");
 
                 let prob_float = ((n as f32 / n_difficulty as f32) * 0.6).max(0.01).min(1.0);
@@ -522,11 +522,11 @@ impl Context {
         // ensure that we only test each result once
         let mut tested_results_set = HashSet::new();
 
-        throne::update(&mut core, |p: &throne::Phrase| match p[0].string {
+        throne::update(&mut core, |p: &throne::Phrase| match p[0].atom {
             a if test_probability_atom == Some(a) => {
                 let result_atom = p
                     .get(1)
-                    .map(|t| t.string)
+                    .map(|t| t.atom)
                     .expect("test-probability missing first argument");
 
                 if tested_results_set.contains(&result_atom) {
@@ -537,7 +537,7 @@ impl Context {
 
                 let prob = p
                     .get(2)
-                    .and_then(|t| throne::StringCache::atom_to_number(t.string))
+                    .and_then(|t| throne::StringCache::atom_to_number(t.atom))
                     .expect("test-probability must be passed a number");
 
                 let mut rng = rand::thread_rng();
@@ -577,13 +577,13 @@ impl Context {
                 )
                 .get(0)
                 .map(|p| {
-                    let result_id_atom = p[3].string;
+                    let result_id_atom = p[3].atom;
                     let result_id = throne_context.atom_to_str(result_id_atom).to_string();
 
                     let title = throne_context
                         .find_phrase3(Some(&result_atom), Some(&result_id_atom), Some(&title_atom))
                         .and_then(|p| p.get(3))
-                        .map(|t| throne_context.atom_to_str(t.string).to_string())
+                        .map(|t| throne_context.atom_to_str(t.atom).to_string())
                         .expect(&format!("Missing title for result '{}'", result_id));
 
                     let description = throne_context
@@ -593,7 +593,7 @@ impl Context {
                             Some(&description_atom),
                         )
                         .and_then(|p| p.get(3))
-                        .map(|t| throne_context.atom_to_str(t.string).to_string())
+                        .map(|t| throne_context.atom_to_str(t.atom).to_string())
                         .expect(&format!("Missing description for result '{}'", result_id));
 
                     let effects = self.get_branch_result_effects(&result_id);
@@ -634,13 +634,13 @@ impl Context {
                 )
                 .iter()
                 .map(|p| {
-                    let effect_type = p.get(3).map(|t| throne_context.atom_to_str(t.string));
+                    let effect_type = p.get(3).map(|t| throne_context.atom_to_str(t.atom));
 
                     match effect_type {
                         Some("quality-changed") => {
                             let quality_id_atom = p
                                 .get(4)
-                                .map(|t| t.string)
+                                .map(|t| t.atom)
                                 .expect("quality-changed effect missing quality");
 
                             let quality = throne_context.atom_to_str(quality_id_atom).to_string();
@@ -648,10 +648,10 @@ impl Context {
                             let n_before = p
                                 .get(5)
                                 .map(|t| {
-                                    throne_context.atom_to_number(t.string).unwrap_or_else(|| {
+                                    throne_context.atom_to_number(t.atom).unwrap_or_else(|| {
                                         panic!(
                                             "quality-changed n_before '{}' is not a number",
-                                            throne_context.atom_to_str(t.string)
+                                            throne_context.atom_to_str(t.atom)
                                         )
                                     })
                                 })
@@ -660,10 +660,10 @@ impl Context {
                             let n = p
                                 .get(6)
                                 .map(|t| {
-                                    throne_context.atom_to_number(t.string).unwrap_or_else(|| {
+                                    throne_context.atom_to_number(t.atom).unwrap_or_else(|| {
                                         panic!(
                                             "quality-changed n '{}' is not a number",
-                                            throne_context.atom_to_str(t.string)
+                                            throne_context.atom_to_str(t.atom)
                                         )
                                     })
                                 })
@@ -737,7 +737,7 @@ impl Context {
                 .find_phrases_exactly2(Some(&card_atom), None)
                 .iter()
                 .map(|p| {
-                    let card_id_atom = p[1].string;
+                    let card_id_atom = p[1].atom;
                     let card_id = throne_context.atom_to_str(card_id_atom).to_string();
                     let requirements = self.get_card_requirements(&card_id);
                     let branches = self.get_branches(&card_id);
@@ -745,7 +745,7 @@ impl Context {
                     let title = throne_context
                         .find_phrase3(Some(&card_atom), Some(&card_id_atom), Some(&title_atom))
                         .and_then(|p| p.get(3))
-                        .map(|t| throne_context.atom_to_str(t.string).to_string())
+                        .map(|t| throne_context.atom_to_str(t.atom).to_string())
                         .expect(&format!("Missing title for card '{}'", card_id));
 
                     let description = throne_context
@@ -755,7 +755,7 @@ impl Context {
                             Some(&description_atom),
                         )
                         .and_then(|p| p.get(3))
-                        .map(|t| throne_context.atom_to_str(t.string).to_string())
+                        .map(|t| throne_context.atom_to_str(t.atom).to_string())
                         .unwrap_or("".to_string());
 
                     Card {
@@ -794,7 +794,7 @@ impl Context {
                     )
                     .iter()
                     .map(|p| {
-                        let quality = throne_context.atom_to_str(p[4].string).to_string();
+                        let quality = throne_context.atom_to_str(p[4].atom).to_string();
                         CardRequirement {
                             quality,
                             failed: false,
@@ -840,7 +840,7 @@ impl Context {
                 )
                 .iter()
                 .map(|p| {
-                    let branch_id_atom = p[3].string;
+                    let branch_id_atom = p[3].atom;
                     let branch_id = throne_context.atom_to_str(branch_id_atom).to_string();
                     let requirements = self.get_branch_requirements(&branch_id);
                     let failed = requirements.iter().any(|r| r.failed);
@@ -848,7 +848,7 @@ impl Context {
                     let title = throne_context
                         .find_phrase3(Some(&branch_atom), Some(&branch_id_atom), Some(&title_atom))
                         .and_then(|p| p.get(3))
-                        .map(|t| throne_context.atom_to_str(t.string).to_string())
+                        .map(|t| throne_context.atom_to_str(t.atom).to_string())
                         .expect(&format!("Missing title for branch '{}'", branch_id));
 
                     let description = throne_context
@@ -858,7 +858,7 @@ impl Context {
                             Some(&description_atom),
                         )
                         .and_then(|p| p.get(3))
-                        .map(|t| throne_context.atom_to_str(t.string).to_string())
+                        .map(|t| throne_context.atom_to_str(t.atom).to_string())
                         .unwrap_or("".to_string());
 
                     let result_weights = throne_context
@@ -869,9 +869,9 @@ impl Context {
                         )
                         .iter()
                         .map(|p| {
-                            let result_id_atom = p[3].string;
-                            let probability_atom = p[4].string;
-                            let quality_id_atom = p.get(5).map(|t| t.string);
+                            let result_id_atom = p[3].atom;
+                            let probability_atom = p[4].atom;
+                            let quality_id_atom = p.get(5).map(|t| t.atom);
 
                             let result_id = throne_context.atom_to_str(result_id_atom);
                             let probability = throne_context
@@ -925,13 +925,11 @@ impl Context {
                     )
                     .iter()
                     .map(|p| {
-                        let quality = throne_context.atom_to_str(p[4].string).to_string();
+                        let quality = throne_context.atom_to_str(p[4].atom).to_string();
 
-                        let level = p
-                            .get(5)
-                            .and_then(|t| throne_context.atom_to_number(t.string));
+                        let level = p.get(5).and_then(|t| throne_context.atom_to_number(t.atom));
                         let condition = RequirementCondition::from_str(
-                            throne_context.atom_to_str(p[3].string),
+                            throne_context.atom_to_str(p[3].atom),
                             level,
                         );
                         BranchRequirement {
@@ -956,13 +954,11 @@ impl Context {
                     )
                     .iter()
                     .map(|p| {
-                        let quality = throne_context.atom_to_str(p[4].string).to_string();
+                        let quality = throne_context.atom_to_str(p[4].atom).to_string();
 
-                        let level = p
-                            .get(5)
-                            .and_then(|t| throne_context.atom_to_number(t.string));
+                        let level = p.get(5).and_then(|t| throne_context.atom_to_number(t.atom));
                         let condition = RequirementCondition::from_str(
-                            throne_context.atom_to_str(p[3].string),
+                            throne_context.atom_to_str(p[3].atom),
                             level,
                         );
                         BranchRequirement {
@@ -997,9 +993,9 @@ impl Context {
                     .find_phrases_exactly3(Some(&quality_atom), None, None)
                     .iter()
                     .map(|p| {
-                        let id_atom = p[1].string;
+                        let id_atom = p[1].atom;
                         let id = throne_context.atom_to_str(id_atom).to_string();
-                        let value = throne_context.atom_to_number(p[2].string).unwrap();
+                        let value = throne_context.atom_to_number(p[2].atom).unwrap();
 
                         let properties = self.quality_properties.get(&id);
                         let title = properties.and_then(|properties| properties.pluralized_title());
@@ -1036,7 +1032,7 @@ impl Context {
         let mut new_state = throne::State::new();
         for phrase_id in throne_context.core.state.iter() {
             let p = throne_context.core.state.get(*phrase_id);
-            if p[0].string == quality_atom {
+            if p[0].atom == quality_atom {
                 new_state.push(p.to_vec());
             }
         }
@@ -1736,7 +1732,7 @@ mod tests {
             vec![BranchResultEffect::AddPhrase {
                 phrase: throne::tokenize(
                     "open-treasure (1 2 3)",
-                    &mut context.throne_context.string_cache
+                    &mut context.throne_context.atom_cache
                 ),
                 phrase_string: "(open-treasure (1 2 3))".to_string()
             }]
