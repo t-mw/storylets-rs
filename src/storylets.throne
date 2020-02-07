@@ -139,9 +139,6 @@
   () = ()
 }
 
-#set-quality QUALITY N . <<quality QUALITY NBEFORE = quality QUALITY N . ^report NBEFORE N
-#change-quality QUALITY CHANGE . <<quality QUALITY NBEFORE . <<calc-quality-after-change NBEFORE CHANGE N' = quality QUALITY N' . ^report NBEFORE N'
-
 quality _ 0 = ()
 
 [enable-unused-warnings]

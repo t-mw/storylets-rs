@@ -485,10 +485,9 @@ impl Context {
                 .filter(|props| props.is_global)
                 .is_none()
             {
-                queue_set_quality(&mut self.throne_context, &quality.id, 0);
+                self.set_quality(&quality.id, 0);
             }
         }
-        self.throne_context.update(|_: &throne::Phrase| None);
 
         self.reset_state();
 
@@ -737,37 +736,7 @@ impl Context {
     }
 
     pub fn set_quality(&mut self, id: &str, value: i32) -> Option<ChangeQualityResult> {
-        let mut n_before = 0;
-        let mut n_after = 0;
-
-        queue_set_quality(&mut self.throne_context, id, value);
-
-        let mut core = &mut self.throne_context.core;
-        let string_cache = &mut self.throne_context.string_cache;
-
-        throne::update(&mut core, |p: &throne::Phrase| {
-            assert_eq!(p[0].atom, string_cache.str_to_atom("report"));
-            n_before =
-                throne::StringCache::atom_to_number(p[1].atom).expect("n_before is not a number");
-            n_after =
-                throne::StringCache::atom_to_number(p[2].atom).expect("n_after is not a number");
-            None
-        });
-
-        if n_before == n_after {
-            return None;
-        }
-
-        let description = self
-            .quality_properties
-            .get(id)
-            .and_then(|properties| properties.description_for_level_change(n_before, n_after));
-
-        Some(ChangeQualityResult {
-            n_before,
-            n_after,
-            description,
-        })
+        self.change_quality_internal(id, value, false)
     }
 
     pub fn set_quality_bool(&mut self, id: &str, value: bool) -> Option<ChangeQualityResult> {
@@ -775,25 +744,65 @@ impl Context {
     }
 
     pub fn change_quality(&mut self, id: &str, change: i32) -> Option<ChangeQualityResult> {
+        self.change_quality_internal(id, change, true)
+    }
+
+    fn change_quality_internal(
+        &mut self,
+        id: &str,
+        change: i32,
+        relative: bool,
+    ) -> Option<ChangeQualityResult> {
+        let quality_atom = self.throne_context.str_to_atom("quality");
+        let quality_id_atom = self.throne_context.str_to_atom(id);
+
+        let mut remove_phrase_id = None;
         let mut n_before = 0;
-        let mut n_after = 0;
 
-        queue_change_quality(&mut self.throne_context, id, change);
+        for phrase_id in self.throne_context.core.state.iter() {
+            let phrase = self.throne_context.core.state.get(phrase_id);
+            match (
+                phrase.get(0).map(|t| t.atom),
+                phrase.get(1).map(|t| t.atom),
+                phrase.get(2).map(|t| t.atom),
+            ) {
+                (Some(a1), Some(a2), Some(a3)) if a1 == quality_atom && a2 == quality_id_atom => {
+                    remove_phrase_id = Some(phrase_id);
+                    n_before = self
+                        .throne_context
+                        .atom_to_number(a3)
+                        .expect(&format!("n_before is not a number for quality '{}'", id));
+                    break;
+                }
+                _ => (),
+            }
+        }
 
-        let mut core = &mut self.throne_context.core;
-        let string_cache = &mut self.throne_context.string_cache;
-
-        throne::update(&mut core, |p: &throne::Phrase| {
-            assert_eq!(p[0].atom, string_cache.str_to_atom("report"));
-            n_before =
-                throne::StringCache::atom_to_number(p[1].atom).expect("n_before is not a number");
-            n_after =
-                throne::StringCache::atom_to_number(p[2].atom).expect("n_after is not a number");
-            None
-        });
+        let n_after = (if relative { n_before + change } else { change }).max(0);
 
         if n_before == n_after {
             return None;
+        }
+
+        if let Some(remove_phrase_id) = remove_phrase_id {
+            let mut new_phrase = self
+                .throne_context
+                .core
+                .state
+                .get(remove_phrase_id)
+                .to_vec();
+            new_phrase[2].atom = throne::StringCache::number_to_atom(n_after);
+
+            self.throne_context.core.state.remove(remove_phrase_id);
+
+            if n_after > 0 {
+                self.throne_context.core.state.push(new_phrase);
+            }
+        } else {
+            if n_after > 0 {
+                self.throne_context
+                    .append_state(&format!("quality {} {}", id, change));
+            }
         }
 
         let description = self
@@ -1117,21 +1126,13 @@ impl Context {
 
         let mut new_state = throne::State::new();
         for phrase_id in throne_context.core.state.iter() {
-            let p = throne_context.core.state.get(*phrase_id);
+            let p = throne_context.core.state.get(phrase_id);
             if p[0].atom == quality_atom {
                 new_state.push(p.to_vec());
             }
         }
         throne_context.core.state = new_state;
     }
-}
-
-fn queue_set_quality(throne_context: &mut throne::Context, id: &str, value: i32) {
-    throne_context.append_state(&format!("#set-quality {} {}", id, value));
-}
-
-fn queue_change_quality(throne_context: &mut throne::Context, id: &str, change: i32) {
-    throne_context.append_state(&format!("#change-quality {} {}", id, change));
 }
 
 impl Script {

@@ -12,7 +12,7 @@ edition = "2018"
 exclude = ["todo.org"]
 
 [dependencies]
-throne = "0.2.1"
+throne = { git = "https://github.com/t-mw/throne", rev = "302879" }
 rand = "0.7.3"
 regex = "1.3.3"
 unidecode = "0.3.0"
