@@ -117,9 +117,6 @@
   () = ()
 }
 
-<<consume-quality-to-set QUALITY N NBEFORE . quality QUALITY NBEFORE . !== N NBEFORE
-<<consume-quality-to-set QUALITY _ 0 . !quality QUALITY _
-
 <<calc-quality-after-change N CHANGE N' . >= CHANGE 0 . + N CHANGE N'
 // stop qualities from being changed to below 0
 <<calc-quality-after-change N CHANGE N' . < CHANGE 0 . + CHANGE CHANGEPOSITIVE 0 . <= CHANGEPOSITIVE N . + N CHANGE N'
@@ -142,7 +139,7 @@
   () = ()
 }
 
-#set-quality QUALITY N . <<consume-quality-to-set QUALITY N NBEFORE = quality QUALITY N . ^report NBEFORE N
+#set-quality QUALITY N . <<quality QUALITY NBEFORE = quality QUALITY N . ^report NBEFORE N
 #change-quality QUALITY CHANGE . <<quality QUALITY NBEFORE . <<calc-quality-after-change NBEFORE CHANGE N' = quality QUALITY N' . ^report NBEFORE N'
 
 quality _ 0 = ()
