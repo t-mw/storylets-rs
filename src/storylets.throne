@@ -143,6 +143,7 @@
 }
 
 #set-quality QUALITY N . <<consume-quality-to-set QUALITY N _ = quality QUALITY N
+#change-quality QUALITY CHANGE . <<quality QUALITY NBEFORE . <<calc-quality-after-change NBEFORE CHANGE N' = quality QUALITY N'
 
 quality _ 0 = ()
 

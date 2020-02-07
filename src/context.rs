@@ -732,12 +732,15 @@ impl Context {
     pub fn set_quality(&mut self, id: &str, value: i32) {
         queue_set_quality(&mut self.throne_context, id, value);
         self.throne_context.update(|_: &throne::Phrase| None);
-
-        self.reset_state();
     }
 
     pub fn set_quality_bool(&mut self, id: &str, value: bool) {
         self.set_quality(id, if value { 1 } else { 0 });
+    }
+
+    pub fn change_quality(&mut self, id: &str, change: i32) {
+        queue_change_quality(&mut self.throne_context, id, change);
+        self.throne_context.update(|_: &throne::Phrase| None);
     }
 
     pub fn get_throne_context(&self) -> &throne::Context {
@@ -1060,6 +1063,10 @@ impl Context {
 
 fn queue_set_quality(throne_context: &mut throne::Context, id: &str, value: i32) {
     throne_context.append_state(&format!("#set-quality {} {}", id, value));
+}
+
+fn queue_change_quality(throne_context: &mut throne::Context, id: &str, change: i32) {
+    throne_context.append_state(&format!("#change-quality {} {}", id, change));
 }
 
 impl Script {
@@ -1461,7 +1468,40 @@ mod tests {
     fn test_set_quality() {
         let mut context = Context::from_throne_text("");
         context.throne_context.print();
+        context.set_quality("test", 2);
+
+        assert_eq!(
+            context.get_qualities(),
+            vec![Quality {
+                id: "test".to_string(),
+                value: 2,
+                title: None,
+                description: None
+            }]
+        );
+
         context.set_quality("test", 0);
+        assert_eq!(context.get_qualities(), vec![]);
+    }
+
+    #[test]
+    fn test_change_quality() {
+        let mut context = Context::from_throne_text("");
+        context.throne_context.print();
+        context.change_quality("test", 2);
+        context.change_quality("test", 3);
+
+        assert_eq!(
+            context.get_qualities(),
+            vec![Quality {
+                id: "test".to_string(),
+                value: 5,
+                title: None,
+                description: None
+            }]
+        );
+
+        context.change_quality("test", -6);
         assert_eq!(context.get_qualities(), vec![]);
     }
 
