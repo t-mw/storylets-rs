@@ -736,16 +736,45 @@ impl Context {
         effects
     }
 
-    pub fn set_quality(&mut self, id: &str, value: i32) {
+    pub fn set_quality(&mut self, id: &str, value: i32) -> Option<ChangeQualityResult> {
+        let mut n_before = 0;
+        let mut n_after = 0;
+
         queue_set_quality(&mut self.throne_context, id, value);
-        self.throne_context.update(|_: &throne::Phrase| None);
+
+        let mut core = &mut self.throne_context.core;
+        let string_cache = &mut self.throne_context.string_cache;
+
+        throne::update(&mut core, |p: &throne::Phrase| {
+            assert_eq!(p[0].atom, string_cache.str_to_atom("report"));
+            n_before =
+                throne::StringCache::atom_to_number(p[1].atom).expect("n_before is not a number");
+            n_after =
+                throne::StringCache::atom_to_number(p[2].atom).expect("n_after is not a number");
+            None
+        });
+
+        if n_before == n_after {
+            return None;
+        }
+
+        let description = self
+            .quality_properties
+            .get(id)
+            .and_then(|properties| properties.description_for_level_change(n_before, n_after));
+
+        Some(ChangeQualityResult {
+            n_before,
+            n_after,
+            description,
+        })
     }
 
-    pub fn set_quality_bool(&mut self, id: &str, value: bool) {
-        self.set_quality(id, if value { 1 } else { 0 });
+    pub fn set_quality_bool(&mut self, id: &str, value: bool) -> Option<ChangeQualityResult> {
+        self.set_quality(id, if value { 1 } else { 0 })
     }
 
-    pub fn change_quality(&mut self, id: &str, change: i32) -> ChangeQualityResult {
+    pub fn change_quality(&mut self, id: &str, change: i32) -> Option<ChangeQualityResult> {
         let mut n_before = 0;
         let mut n_after = 0;
 
@@ -763,16 +792,20 @@ impl Context {
             None
         });
 
+        if n_before == n_after {
+            return None;
+        }
+
         let description = self
             .quality_properties
             .get(id)
             .and_then(|properties| properties.description_for_level_change(n_before, n_after));
 
-        ChangeQualityResult {
+        Some(ChangeQualityResult {
             n_before,
             n_after,
             description,
-        }
+        })
     }
 
     pub fn get_throne_context(&self) -> &throne::Context {
@@ -1498,7 +1531,7 @@ mod tests {
 
     #[test]
     fn test_set_quality() {
-        let mut context = Context::from_throne_text("");
+        let mut context = Context::from_throne_text("<<quality-title test `Test`");
         context.throne_context.print();
         context.set_quality("test", 2);
 
@@ -1507,12 +1540,21 @@ mod tests {
             vec![Quality {
                 id: "test".to_string(),
                 value: 2,
-                title: None,
-                description: None
+                title: Some("Test".to_string()),
+                description: Some("Test: 2".to_string()),
             }]
         );
 
-        context.set_quality("test", 0);
+        let result = context.set_quality("test", 0);
+
+        assert_eq!(
+            result,
+            Some(ChangeQualityResult {
+                n_before: 2,
+                n_after: 0,
+                description: Some("Your 'Test' quality decreased by 2 (new level: 0)".to_string())
+            })
+        );
         assert_eq!(context.get_qualities(), vec![]);
     }
 
@@ -1537,11 +1579,11 @@ mod tests {
 
         assert_eq!(
             result,
-            ChangeQualityResult {
+            Some(ChangeQualityResult {
                 n_before: 5,
                 n_after: 0,
                 description: Some("Your 'Test' quality decreased by 5 (new level: 0)".to_string())
-            }
+            })
         );
         assert_eq!(context.get_qualities(), vec![]);
     }
