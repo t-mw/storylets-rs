@@ -831,7 +831,7 @@ impl Context {
             throne_context
                 .find_phrases_exactly2(Some(&card_atom), None)
                 .iter()
-                .map(|p| {
+                .filter_map(|p| {
                     let card_id_atom = p[1].atom;
                     let card_id = throne_context.atom_to_str(card_id_atom).to_string();
                     let requirements = self.get_card_requirements(&card_id);
@@ -853,13 +853,17 @@ impl Context {
                         .map(|t| throne_context.atom_to_str(t.atom).to_string())
                         .unwrap_or("".to_string());
 
-                    Card {
+                    if branches.len() == 0 {
+                        return None;
+                    }
+
+                    Some(Card {
                         id: card_id,
                         title,
                         description: format_description(&description),
                         requirements,
                         branches,
-                    }
+                    })
                 })
                 .collect()
         } else {
