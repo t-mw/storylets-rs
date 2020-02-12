@@ -1,6 +1,7 @@
 pub fn pluralize(s: &str) -> String {
     match s.to_lowercase().as_ref() {
         "energy" | "reputation" => return s.to_string(),
+        "mouse" => return "mice".to_string(),
         _ => (),
     }
 
