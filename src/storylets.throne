@@ -27,7 +27,6 @@
 <<quality-non-consuming QUALITY 0 . !quality QUALITY _
 
 #draw-cards: {
-  // just check for first failure, since failed cards are never shown
   <<card-required-quality CARD QUALITY . !quality QUALITY _ . !card CARD failed-quality _ QUALITY = card CARD failed-quality exists QUALITY
   <<card-required-quality-missing CARD QUALITY . $quality QUALITY _ . !card CARD failed-quality _ QUALITY = card CARD failed-quality missing QUALITY
   <<card-required-quality-eq CARD QUALITY N . <<quality-fails-eq QUALITY N . !card CARD failed-quality _ QUALITY = card CARD failed-quality eq QUALITY
