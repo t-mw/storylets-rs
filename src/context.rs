@@ -362,6 +362,7 @@ pub enum BranchResultEffect {
 #[derive(Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct CardRequirement {
     pub quality: String,
+    pub condition: RequirementCondition,
     pub failed: bool,
 }
 
@@ -895,7 +896,7 @@ impl Context {
             throne_context.str_to_existing_atom("card"),
             throne_context.str_to_existing_atom(card_id),
         ) {
-            let mut requirements = if let Some(passed_quality_atom) =
+            let mut passed_requirements = if let Some(passed_quality_atom) =
                 throne_context.str_to_existing_atom("passed-quality")
             {
                 throne_context
@@ -907,8 +908,15 @@ impl Context {
                     .iter()
                     .map(|p| {
                         let quality = throne_context.atom_to_str(p[4].atom).to_string();
+
+                        let level = p.get(5).and_then(|t| throne_context.atom_to_number(t.atom));
+                        let condition = RequirementCondition::from_str(
+                            throne_context.atom_to_str(p[3].atom),
+                            level,
+                        );
                         CardRequirement {
                             quality,
+                            condition,
                             failed: false,
                         }
                     })
@@ -917,6 +925,38 @@ impl Context {
                 vec![]
             };
 
+            let mut failed_requirements = if let Some(failed_quality_atom) =
+                throne_context.str_to_existing_atom("failed-quality")
+            {
+                throne_context
+                    .find_phrases3(
+                        Some(&card_atom),
+                        Some(&card_id_atom),
+                        Some(&failed_quality_atom),
+                    )
+                    .iter()
+                    .map(|p| {
+                        let quality = throne_context.atom_to_str(p[4].atom).to_string();
+
+                        let level = p.get(5).and_then(|t| throne_context.atom_to_number(t.atom));
+                        let condition = RequirementCondition::from_str(
+                            throne_context.atom_to_str(p[3].atom),
+                            level,
+                        );
+                        CardRequirement {
+                            quality,
+                            condition,
+                            failed: true,
+                        }
+                    })
+                    .collect()
+            } else {
+                vec![]
+            };
+
+            let mut requirements = vec![];
+            requirements.append(&mut passed_requirements);
+            requirements.append(&mut failed_requirements);
             requirements.sort();
 
             requirements
@@ -1626,6 +1666,7 @@ mod tests {
                     description: "You see a gleaming metal chest".to_string(),
                     requirements: vec![CardRequirement {
                         quality: "treasure-open".to_string(),
+                        condition: RequirementCondition::Missing,
                         failed: false
                     }],
                     branches: vec![
