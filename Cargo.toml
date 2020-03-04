@@ -1,6 +1,6 @@
 [package]
 name = "storylets"
-version = "0.4.4"
+version = "0.5.0"
 description = "Embeddable storylet-based narrative engine for games"
 authors = ["Tobias Mansfield-Williams <contact@tmwhere.com>"]
 repository = "https://github.com/t-mw/storylets-rs"
