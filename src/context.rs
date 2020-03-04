@@ -334,6 +334,17 @@ pub struct BranchResult {
     pub effects: Vec<BranchResultEffect>,
 }
 
+impl BranchResult {
+    pub fn append_change_quality_effect(&mut self, effect: &ChangeQualityEffect) {
+        self.effects.push(BranchResultEffect::QualityChanged {
+            quality: effect.quality.clone(),
+            diff: effect.diff,
+            value: effect.value,
+            description: effect.description.clone(),
+        });
+    }
+}
+
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum BranchResultEffect {
     QualityChanged {
@@ -436,9 +447,10 @@ pub struct Quality {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-pub struct ChangeQualityResult {
-    pub n_before: i32,
-    pub n_after: i32,
+pub struct ChangeQualityEffect {
+    pub quality: String,
+    pub diff: i32,
+    pub value: i32,
     pub description: Option<String>,
 }
 
@@ -735,15 +747,15 @@ impl Context {
         effects
     }
 
-    pub fn set_quality(&mut self, id: &str, value: i32) -> Option<ChangeQualityResult> {
+    pub fn set_quality(&mut self, id: &str, value: i32) -> Option<ChangeQualityEffect> {
         self.change_quality_internal(id, value, false)
     }
 
-    pub fn set_quality_bool(&mut self, id: &str, value: bool) -> Option<ChangeQualityResult> {
+    pub fn set_quality_bool(&mut self, id: &str, value: bool) -> Option<ChangeQualityEffect> {
         self.set_quality(id, if value { 1 } else { 0 })
     }
 
-    pub fn change_quality(&mut self, id: &str, change: i32) -> Option<ChangeQualityResult> {
+    pub fn change_quality(&mut self, id: &str, change: i32) -> Option<ChangeQualityEffect> {
         self.change_quality_internal(id, change, true)
     }
 
@@ -752,7 +764,7 @@ impl Context {
         id: &str,
         change: i32,
         relative: bool,
-    ) -> Option<ChangeQualityResult> {
+    ) -> Option<ChangeQualityEffect> {
         let quality_atom = self.throne_context.str_to_atom("quality");
         let quality_id_atom = self.throne_context.str_to_atom(id);
 
@@ -810,9 +822,10 @@ impl Context {
             .get(id)
             .and_then(|properties| properties.description_for_level_change(n_before, n_after));
 
-        Some(ChangeQualityResult {
-            n_before,
-            n_after,
+        Some(ChangeQualityEffect {
+            quality: id.to_string(),
+            diff: n_after - n_before,
+            value: n_after,
             description,
         })
     }
@@ -1554,9 +1567,10 @@ mod tests {
 
         assert_eq!(
             result,
-            Some(ChangeQualityResult {
-                n_before: 2,
-                n_after: 0,
+            Some(ChangeQualityEffect {
+                quality: "test".to_string(),
+                diff: -2,
+                value: 0,
                 description: Some("Your 'Test' quality decreased by 2 (new level: 0)".to_string())
             })
         );
@@ -1584,9 +1598,10 @@ mod tests {
 
         assert_eq!(
             result,
-            Some(ChangeQualityResult {
-                n_before: 5,
-                n_after: 0,
+            Some(ChangeQualityEffect {
+                quality: "test".to_string(),
+                diff: -5,
+                value: 0,
                 description: Some("Your 'Test' quality decreased by 5 (new level: 0)".to_string())
             })
         );
