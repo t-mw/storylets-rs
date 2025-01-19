@@ -9,4 +9,3 @@ Embeddable storylet-based narrative engine for games. Roughly based on [StoryNex
 
 ### Examples
 - [story](examples/story.throne): basic usage example, run with `cargo run --example story`
-- Used in [Urban Gift](https://twitter.com/UrbanGiftGame/)
